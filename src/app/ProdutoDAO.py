@@ -2,6 +2,9 @@
 from fastapi import APIRouter
 from domain.entities.Produto import	Produto
 
+import db
+from infra.orm.ProdutoModel import ProdutoDB
+
 router = APIRouter()
 
 @router.get("/produto/", tags=["Produto"])

@@ -2,6 +2,9 @@
 from fastapi import APIRouter
 from domain.entities.Cliente import Cliente
 
+import db
+from infra.orm.ClienteModel import ClienteDB
+
 router = APIRouter()
 
 # Criar as rotas/endpoints: GET, POST, PUT, DELETE
