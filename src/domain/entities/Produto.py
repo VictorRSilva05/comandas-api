@@ -6,3 +6,4 @@ class Produto(BaseModel):
     nome: str
     tipo: str
     valor: int
+    foto: bytes

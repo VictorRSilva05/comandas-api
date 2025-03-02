@@ -1,5 +1,5 @@
 import db
-from sqlalchemy import Column, VARCHAR, DECIMAL, Integer
+from sqlalchemy import Column, VARCHAR, DECIMAL, Integer, BLOB
 
 class ProdutoDB(db.Base):
     __tablename__ = 'tb_produto'
@@ -8,6 +8,7 @@ class ProdutoDB(db.Base):
     nome = Column(VARCHAR(100), nullable=False)
     tipo = Column(VARCHAR(100), nullable=False)
     valor = Column(DECIMAL(10,2), nullable=False)
+    foto = Column(BLOB)
     
     def __init__(self, id_produto, nome, tipo, valor):
         self.id_produto = id_produto

@@ -116,24 +116,26 @@ async def cpf_cliente(cpf: str):
     finally:
         session.close()
         
-# Criar as rotas/endpoints: GET, POST, PUT, DELETE
-
-@router.get("/cliente/", tags=["Cliente"])
-async def get_cliente():
-    return {"msg": "get todos executado"}, 200
-
-@router.get("/cliente/{id}", tags=["Cliente"])
-async def get_cliente(id: int):
-    return {"msg": "get um executado"}, 200
-
-@router.post("/cliente/", tags=["Cliente"])
-async def post_cliente(corpo: Cliente):
-    return {"msg": "post executado", "nome": corpo.nome, "cpf": corpo.cpf, "telefone": corpo.telefone}, 200
-
-@router.put("/cliente/{id}", tags=["Cliente"])
-async def put_cliente(id: int, corpo: Cliente):
-    return {"msg": "put executado", "id":id, "nome": corpo.nome, "cpf": corpo.cpf, "telefone": corpo.telefone}, 200
-
 @router.delete("/cliente/{id}", tags=["Cliente"])
 async def delete_cliente(id: int):
-    return {"msg": "delete executado", "id":id}, 200
+    try:
+        session = db.Session()
+
+        # Busca o cliente pelo ID
+        cliente = session.query(ClienteDB).filter(ClienteDB.id_cliente == id).first()
+
+        if not cliente:
+            return {"erro": "Cliente não encontrado"}, 404
+
+        # Remove o funcionário
+        session.delete(cliente)
+        session.commit()
+
+        return {"mensagem": "Cliente deletado com sucesso"}, 200
+
+    except Exception as e:
+        session.rollback()
+        return {"erro": str(e)}, 400
+    finally:
+        session.close()
+

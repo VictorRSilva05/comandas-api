@@ -70,30 +70,29 @@ async def put_produto(id: int, corpo: Produto):
         session.add(dados)
         session.commit()
         
-        return {"id": dados.id_funcionario}, 200
+        return {"id": dados.id_produto}, 200
         
     except Exception as e:
         session.rollback()
         return {"erro": str(e)}, 400
     finally:
         session.close()
-
-@router.get("/produto/", tags=["Produto"])
-async def get_produto():
-    return {"msg": "get todos executado"}, 200
-
-@router.get("/produto/{id}", tags=["Produto"])
-async def get_produto(id: int):
-    return{"msg": "get um executado"}, 200
-
-@router.post("/produto/", tags=["Produto"])
-async def post_produto(corpo: Produto):
-    return {"msg": "post executado", "nome": corpo.nome, "tipo": corpo.tipo, "valor":corpo.valor}, 200
-
-@router.put("/produto/{id}", tags=["Produto"])
-async def put_produto(id: int, corpo: Produto):
-    return {"msg": "put executado", "nome": corpo.nome, "tipo": corpo.tipo, "valor":corpo.valor}, 200
-
+        
 @router.delete("/produto/{id}", tags=["Produto"])
 async def delete_produto(id: int):
-    return {"msg": "delete executado"}, 200
+    try:
+        session = db.Session()
+        produto = session.query(ProdutoDB).filter(ProdutoDB.id_produto == id).first()
+
+        if not produto:
+            return {"erro": "Produto não encontrado"}, 404
+
+        session.delete(produto)
+        session.commit()
+        return {"mensagem": "Produto deletado com sucesso"}, 200
+
+    except Exception as e:
+        session.rollback()
+        return {"erro": str(e)}, 400
+    finally:
+        session.close()
