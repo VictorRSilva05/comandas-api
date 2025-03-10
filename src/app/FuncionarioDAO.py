@@ -6,7 +6,12 @@ from domain.entities.Funcionario import Funcionario
 import db
 from infra.orm.FuncionarioModel import FuncionarioDB
 
-router = APIRouter()
+# import da segurança
+from typing import Annotated
+from fastapi import Depends
+from security import get_current_active_user, User
+
+router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 @router.get("/funcionario/", tags=["Funcionário"])
 async def get_funcionario():
@@ -83,7 +88,7 @@ async def put_funcionario(id: int, corpo: Funcionario):
     finally:
         session.close()
         
-@router.put("/funcionario/{id}", tags=["Funcionário"])
+@router.put("/funcionario/{id}")
 async def put_funcionario(id: int, corpo: Funcionario):
     try:
         session = db.Session()
@@ -108,7 +113,7 @@ async def put_funcionario(id: int, corpo: Funcionario):
         session.close()
         
 # valida o cpf e senha informado pelo usuário
-@router.post("/funcionario/login/", tags=["Funcionário - Login"])
+@router.post("/funcionario/login/")
 async def login_funcionario(corpo: Funcionario):
     try:
         session = db.Session()
@@ -125,7 +130,7 @@ async def login_funcionario(corpo: Funcionario):
         session.close()
         
 # verifica se o CPF informado já esta cadastrado, retornado os dados atuais caso já esteja
-@router.get("/funcionario/cpf/{cpf}", tags=["Funcionário - Valida CPF"])
+@router.get("/funcionario/cpf/{cpf}")
 async def cpf_funcionario(cpf: str):
     try:
         session = db.Session()
@@ -139,25 +144,28 @@ async def cpf_funcionario(cpf: str):
         return {"erro": str(e)}, 400
     finally:
         session.close()
+        
+@router.delete("/funcionario/{id_funcionario}")
+async def delete_funcionario(id_funcionario: int):
+    try:
+        session = db.Session()
 
-# Criar as rotas/endpoints: GET, POST, PUT, DELETE
+        # Busca o funcionário pelo ID
+        funcionario = session.query(FuncionarioDB).filter(FuncionarioDB.id_funcionario == id_funcionario).first()
 
-@router.get("/funcionario/", tags=["Funcionário"])
-async def get_funcionario():
-    return {"msg": "get todos executado"}, 200
+        if not funcionario:
+            return {"erro": "Funcionário não encontrado"}, 404
 
-@router.get("/funcionario/{id}", tags=["Funcionário"])
-async def get_funcionario(id: int):
-    return {"msg": "get um executado"}, 200
+        # Remove o funcionário
+        session.delete(funcionario)
+        session.commit()
 
-@router.post("/funcionario/", tags=["Funcionário"])
-async def post_funcionario(corpo: Funcionario):
-    return {"msg": "post executado", "nome": corpo.nome, "cpf": corpo.cpf, "telefone":corpo.telefone}, 200
+        return {"mensagem": "Funcionário deletado com sucesso"}, 200
+    
+    except Exception as e:
+        session.rollback()
+        return {"erro": str(e)}, 400
+    finally:
+        session.close()
 
-@router.put("/funcionario/{id}", tags=["Funcionário"])
-async def put_funcionario(id: int, corpo: Funcionario):
-    return {"msg": "put executado", "id":id, "nome": corpo.nome, "cpf": corpo.cpf, "telefone":corpo.telefone}, 200
 
-@router.delete("/funcionario/{id}", tags=["Funcionário"])
-async def delete_funcionario(id: int):
-    return {"msg": "delete executado"}, 200
