@@ -5,6 +5,9 @@ from domain.entities.Produto import	Produto
 import db
 from infra.orm.ProdutoModel import ProdutoDB
 
+import db
+from infra.orm.ProdutoModel import ProdutoDB
+
 # import da segurança
 from typing import Annotated
 from fastapi import Depends
@@ -64,26 +67,9 @@ async def post_produto(corpo: Produto):
         
 @router.put("/produto/{id}", tags=["Produto"])
 async def put_produto(id: int, corpo: Produto):
-    try:
-        session = db.Session()
-        # busca os dados atuais pelo id
-        dados = session.query(ProdutoDB).filter(ProdutoDB.id_produto == id).one()
-        # atualiza os dados com base no corpo da requisição
-        dados.nome = corpo.nome
-        dados.tipo = corpo.tipo
-        dados.valor = corpo.valor
-        session.add(dados)
-        session.commit()
-        
-        return {"id": dados.id_produto}, 200
-        
-    except Exception as e:
-        session.rollback()
-        return {"erro": str(e)}, 400
-    finally:
-        session.close()
-        
-@router.delete("/produto/{id}"  )
+    return {"msg": "put executado", "nome": corpo.nome, "tipo": corpo.tipo, "valor":corpo.valor}, 200
+
+@router.delete("/produto/{id}", tags=["Produto"])
 async def delete_produto(id: int):
     try:
         session = db.Session()
